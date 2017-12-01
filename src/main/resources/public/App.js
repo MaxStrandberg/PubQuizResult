@@ -23,7 +23,8 @@ class App extends React.Component {
 	      .then((response) => response.json()) 
 	      .then((responseData) => { 
 	          this.setState({ 
-	              results: responseData._embedded.results, 
+	              results: responseData._embedded.results,
+	              attributes: Object.keys(responseData._embedded),
 	          }); 
 	      });
 	  } 
@@ -60,6 +61,26 @@ class App extends React.Component {
 	      .catch( err => cosole.error(err))
 	  }
 	  
+	  onUpdate(result, updatedResult) {
+			client({
+				method: 'PUT',
+				path: result.entity._links.self.href,
+				entity: updatedResult,
+				headers: {
+					'Content-Type': 'application/json',
+					'If-Match': result.headers.Etag
+				}
+			}).done(response => {
+				this.loadFromServer(this.state.pageSize);
+			}, response => {
+				if (response.status.code === 412) {
+					alert('DENIED: Unable to update ' +
+						result.entity._links.self.href + '. Your copy is stale.');
+				}
+			});
+		}
+	  
+	  
 	  render() {
 		    return (
 		       <div>
@@ -69,6 +90,57 @@ class App extends React.Component {
 		    );
 		  }  
 }
+
+
+class UpdateDialog extends React.Component {
+
+	constructor(props) {
+		super(props);
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	handleSubmit(e) {
+		e.preventDefault();
+		var updatedResult = {};
+		this.props.attributes.forEach(attribute => {
+			updatedResult[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+		});
+		this.props.onUpdate(this.props.result, updatedResult);
+		window.location = "#";
+	}
+
+	render() {
+		var inputs = this.props.attributes.map(attribute =>
+				<p key={this.props.result.entity[attribute]}>
+					<input type="text" placeholder={attribute}
+						   defaultValue={this.props.result.entity[attribute]}
+						   ref={attribute} className="field" />
+				</p>
+		);
+
+		var dialogId = this.props.result.entity._links.self.href;
+
+		return (
+			<div key={this.props.result.entity._links.self.href}>
+				<a href={"#" + dialogId}>Update</a>
+				<div id={dialogId} className="modalDialog">
+					<div>
+						<a href="#" title="Close" className="close">X</a>
+
+						<h2>Update result</h2>
+
+						<form>
+							{inputs}
+							<button onClick={this.handleSubmit}>Update</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		)
+	}
+
+};
+
 
 
 class ResultsTable extends React.Component {
@@ -113,6 +185,11 @@ class Result extends React.Component {
             <td>{this.props.result.date}</td>
             <td>{this.props.result.points}/60</td>
             <td>{this.props.result.placement}.</td>
+            <td>
+			<UpdateDialog result={this.props.result}
+						  attributes={this.props.attributes}
+						  onUpdate={this.props.onUpdate}/>
+			</td>
             <td>               
                 <button className="btn btn-danger btn-xs" onClick={this.deleteResult}>Delete</button>
             </td>
