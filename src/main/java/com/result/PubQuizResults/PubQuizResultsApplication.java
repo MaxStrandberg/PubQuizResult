@@ -21,8 +21,8 @@ public class PubQuizResultsApplication {
    
 
 
-			repository.save(new Result("Sports Academy", "15.09.2017", 41, 2));
-			repository.save(new Result("Vltava", "13.09.2017", 36, 4));
+			repository.save(new Result("Sports Academy", "2017-11-11", 41, 2));
+			repository.save(new Result("Vltava", "2017-11-20", 36, 4));
 			
 		};	
 	}

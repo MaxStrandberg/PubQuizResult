@@ -965,299 +965,400 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var App = function (_React$Component) {
-    _inherits(App, _React$Component);
+				_inherits(App, _React$Component);
 
-    function App(props) {
-        _classCallCheck(this, App);
+				function App(props) {
+								_classCallCheck(this, App);
 
-        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
+								var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
-        _this.addResult = _this.addResult.bind(_this);
-        _this.deleteResult = _this.deleteResult.bind(_this);
+								_this.addResult = _this.addResult.bind(_this);
+								_this.deleteResult = _this.deleteResult.bind(_this);
+								_this.editResult = _this.editResult.bind(_this);
+								_this.handleSubmit = _this.handleSubmit.bind(_this);
+								_this.handleChange = _this.handleChange.bind(_this);
+								_this.submitEdit = _this.submitEdit.bind(_this);
+								_this.onChangePlace = _this.onChangePlace.bind(_this);
+								_this.onChangeDate = _this.onChangeDate.bind(_this);
+								_this.onChangePoints = _this.onChangePoints.bind(_this);
+								_this.onChangePlacement = _this.onChangePlacement.bind(_this);
 
-        _this.state = {
-            results: []
-        };
-        return _this;
-    }
+								_this.state = {
+												results: [],
+												editResult: false,
+												place: '',
+												date: '',
+												points: '',
+												placement: '',
+												href: ''
+								};
 
-    _createClass(App, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-            this.loadResults();
-        }
-    }, {
-        key: 'loadResults',
-        value: function loadResults() {
-            var _this2 = this;
+								return _this;
+				}
 
-            fetch('http://localhost:8080/api/results', { credentials: 'same-origin' }).then(function (response) {
-                return response.json();
-            }).then(function (responseData) {
-                _this2.setState({
-                    results: responseData._embedded.results
-                });
-            });
-        }
-    }, {
-        key: 'deleteResult',
-        value: function deleteResult(result) {
-            var _this3 = this;
+				_createClass(App, [{
+								key: 'componentDidMount',
+								value: function componentDidMount() {
+												this.loadResults();
+								}
+				}, {
+								key: 'onChangePlace',
+								value: function onChangePlace(e) {
+												this.setState({ place: e.target.value });
+								}
+				}, {
+								key: 'onChangeDate',
+								value: function onChangeDate(e) {
+												this.setState({ date: e.target.value });
+								}
+				}, {
+								key: 'onChangePoints',
+								value: function onChangePoints(e) {
+												this.setState({ points: e.target.value });
+								}
+				}, {
+								key: 'onChangePlacement',
+								value: function onChangePlacement(e) {
+												this.setState({ placement: e.target.value });
+								}
+				}, {
+								key: 'loadResults',
+								value: function loadResults() {
+												var _this2 = this;
 
-            fetch(result._links.self.href, { method: 'DELETE',
-                credentials: 'same-origin' }).then(function (res) {
-                return _this3.loadResults();
-            }).then(function () {
-                Alert.success('Student deleted', {
-                    position: 'bottom-left',
-                    effect: 'slide'
-                });
-            }).catch(function (err) {
-                return console.error(err);
-            });
-        }
-    }, {
-        key: 'addResult',
-        value: function addResult(result) {
-            var _this4 = this;
+												fetch('http://localhost:8080/api/results', { credentials: 'same-origin' }).then(function (response) {
+																return response.json();
+												}).then(function (responseData) {
+																_this2.setState({
+																				results: responseData._embedded.results
 
-            fetch('http://localhost:8080/api/results', { method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(result)
-            }).then(function (res) {
-                return _this4.loadResults();
-            }).catch(function (err) {
-                return cosole.error(err);
-            });
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            return _react2.default.createElement(
-                'div',
-                null,
-                _react2.default.createElement(ResultsTable, { deleteResult: this.deleteResult, results: this.state.results }),
-                _react2.default.createElement(ResultForm, { addResult: this.addResult })
-            );
-        }
-    }]);
+																});
+												});
+								}
+				}, {
+								key: 'handleChange',
+								value: function handleChange(event) {
+												this.setState(_defineProperty({}, event.target.name, event.target.value));
+								}
+				}, {
+								key: 'deleteResult',
+								value: function deleteResult(result) {
+												var _this3 = this;
 
-    return App;
+												fetch(result._links.self.href, { method: 'DELETE',
+																credentials: 'same-origin' }).then(function (res) {
+																return _this3.loadResults();
+												});
+								}
+				}, {
+								key: 'addResult',
+								value: function addResult(result) {
+												var _this4 = this;
+
+												fetch('http://localhost:8080/api/results', { method: 'POST',
+																credentials: 'same-origin',
+																headers: {
+																				'Content-Type': 'application/json'
+																},
+																body: JSON.stringify(result)
+												}).then(function (res) {
+																return _this4.loadResults();
+												}).catch(function (err) {
+																return cosole.error(err);
+												});
+								}
+				}, {
+								key: 'submitEdit',
+								value: function submitEdit(result) {
+												var _this5 = this;
+
+												result.preventDefault();
+												fetch(this.state.href, {
+																method: 'PUT',
+																credentials: 'same-origin',
+																headers: {
+																				'Content-Type': 'application/json'
+																},
+																body: JSON.stringify({
+																				place: this.state.place,
+																				date: this.state.date,
+																				points: this.state.points,
+																				placement: this.state.placement
+																})
+												}).then(function (res) {
+																return _this5.loadResults();
+												}).catch(function (err) {
+																return console.error(err);
+												});
+												this.setState({ editResult: false });
+												this.refs.placeInput.value = '';
+												this.refs.dateInput.value = '';
+												this.refs.pointsInput.value = '';
+												this.refs.placementInput.value = '';
+								}
+				}, {
+								key: 'editResult',
+								value: function editResult(result) {
+												this.setState({
+																editResult: true,
+																place: result.place,
+																date: result.date,
+																points: result.points,
+																placement: result.placement,
+																href: result._links.self.href
+												});
+								}
+				}, {
+								key: 'handleSubmit',
+								value: function handleSubmit(event) {
+												event.preventDefault();
+												var newResult = {
+																place: this.state.place,
+																date: this.state.date,
+																points: this.state.points,
+																placement: this.state.placement
+												};
+
+												this.addResult(newResult);
+
+												this.refs.placeInput.value = '';
+												this.refs.dateInput.value = '';
+												this.refs.pointsInput.value = '';
+												this.refs.placementInput.value = '';
+								}
+				}, {
+								key: 'render',
+								value: function render() {
+												return _react2.default.createElement(
+																'div',
+																null,
+																_react2.default.createElement(ResultsTable, { deleteResult: this.deleteResult, editResult: this.editResult, results: this.state.results }),
+																_react2.default.createElement(
+																				'div',
+																				null,
+																				_react2.default.createElement(
+																								'div',
+																								{ className: 'panel panel-default' },
+																								_react2.default.createElement(
+																												'div',
+																												{ className: 'panel-heading' },
+																												'Lis\xE4\xE4 tapahtuma'
+																								),
+																								_react2.default.createElement(
+																												'div',
+																												{ className: 'panel-body' },
+																												!this.state.editResult ? _react2.default.createElement(
+																																'form',
+																																{ onSubmit: this.handleSubmit },
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-4' },
+																																				_react2.default.createElement('input', { type: 'text', placeholder: 'Paikka', name: 'place', className: 'form-control', ref: 'placeInput', onChange: this.handleChange })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-4' },
+																																				_react2.default.createElement('input', { type: 'date', placeholder: 'P\xE4iv\xE4m\xE4\xE4r\xE4', name: 'date', className: 'form-control', ref: 'dateInput', onChange: this.handleChange })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-2' },
+																																				_react2.default.createElement('input', { type: 'number', min: '1', max: '60', placeholder: 'Pisteet', name: 'points', className: 'form-control', ref: 'pointsInput', onChange: this.handleChange })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-2' },
+																																				_react2.default.createElement('input', { type: 'text', placeholder: 'Sijoitus', name: 'placement', className: 'form-control', ref: 'placementInput', onChange: this.handleChange })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-2' },
+																																				_react2.default.createElement(
+																																								'button',
+																																								{ className: 'btn btn-primary', onClick: this.handleSubmit },
+																																								'Tallenna'
+																																				)
+																																)
+																												) : _react2.default.createElement(
+																																'form',
+																																{ onSubmit: this.submitEdit },
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-4' },
+																																				_react2.default.createElement('input', { type: 'text', value: this.state.place, className: 'form-control', name: 'place', ref: 'placeInput', onChange: this.onChangePlace })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-4' },
+																																				_react2.default.createElement('input', { type: 'date', value: this.state.date, className: 'form-control', name: 'date', ref: 'dateInput', onChange: this.onChangeDate })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-2' },
+																																				_react2.default.createElement('input', { type: 'number', min: '1', max: '60', value: this.state.points, name: 'points', className: 'form-control', ref: 'pointsInput', onChange: this.onChangePoints })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-2' },
+																																				_react2.default.createElement('input', { type: 'text', value: this.state.placement, className: 'form-control', name: 'placement', ref: 'placementInput', onChange: this.onChangePlacement })
+																																),
+																																_react2.default.createElement(
+																																				'div',
+																																				{ className: 'col-md-2' },
+																																				_react2.default.createElement(
+																																								'button',
+																																								{ className: 'btn btn-primary', onClick: this.submitEdit },
+																																								'Tallenna'
+																																				)
+																																)
+																												)
+																								)
+																				)
+																)
+												);
+								}
+				}]);
+
+				return App;
 }(_react2.default.Component);
 
 var ResultsTable = function (_React$Component2) {
-    _inherits(ResultsTable, _React$Component2);
+				_inherits(ResultsTable, _React$Component2);
 
-    function ResultsTable(props) {
-        _classCallCheck(this, ResultsTable);
+				function ResultsTable(props) {
+								_classCallCheck(this, ResultsTable);
 
-        return _possibleConstructorReturn(this, (ResultsTable.__proto__ || Object.getPrototypeOf(ResultsTable)).call(this, props));
-    }
+								return _possibleConstructorReturn(this, (ResultsTable.__proto__ || Object.getPrototypeOf(ResultsTable)).call(this, props));
+				}
 
-    _createClass(ResultsTable, [{
-        key: 'render',
-        value: function render() {
-            var _this6 = this;
+				_createClass(ResultsTable, [{
+								key: 'render',
+								value: function render() {
+												var _this7 = this;
 
-            var results = this.props.results.map(function (result) {
-                return _react2.default.createElement(Result, { key: result._links.self.href, result: result, deleteResult: _this6.props.deleteResult });
-            });
+												var results = this.props.results.map(function (result) {
+																return _react2.default.createElement(Result, { key: result._links.self.href, result: result, deleteResult: _this7.props.deleteResult,
+																				editResult: _this7.props.editResult });
+												});
 
-            return _react2.default.createElement(
-                'div',
-                null,
-                _react2.default.createElement(
-                    'table',
-                    { className: 'table table-striped' },
-                    _react2.default.createElement(
-                        'thead',
-                        null,
-                        _react2.default.createElement(
-                            'tr',
-                            null,
-                            _react2.default.createElement(
-                                'th',
-                                null,
-                                'Paikka'
-                            ),
-                            _react2.default.createElement(
-                                'th',
-                                null,
-                                'P\xE4iv\xE4m\xE4\xE4r\xE4'
-                            ),
-                            _react2.default.createElement(
-                                'th',
-                                null,
-                                'Pisteet'
-                            ),
-                            _react2.default.createElement(
-                                'th',
-                                null,
-                                'Sijoitus'
-                            ),
-                            _react2.default.createElement('th', null)
-                        )
-                    ),
-                    _react2.default.createElement(
-                        'tbody',
-                        null,
-                        results
-                    )
-                )
-            );
-        }
-    }]);
+												return _react2.default.createElement(
+																'div',
+																null,
+																_react2.default.createElement(
+																				'table',
+																				{ className: 'table table-striped' },
+																				_react2.default.createElement(
+																								'thead',
+																								null,
+																								_react2.default.createElement(
+																												'tr',
+																												null,
+																												_react2.default.createElement(
+																																'th',
+																																null,
+																																'Paikka'
+																												),
+																												_react2.default.createElement(
+																																'th',
+																																null,
+																																'P\xE4iv\xE4m\xE4\xE4r\xE4'
+																												),
+																												_react2.default.createElement(
+																																'th',
+																																null,
+																																'Pisteet'
+																												),
+																												_react2.default.createElement(
+																																'th',
+																																null,
+																																'Sijoitus'
+																												),
+																												_react2.default.createElement('th', null)
+																								)
+																				),
+																				_react2.default.createElement(
+																								'tbody',
+																								null,
+																								results
+																				)
+																)
+												);
+								}
+				}]);
 
-    return ResultsTable;
+				return ResultsTable;
 }(_react2.default.Component);
 
 var Result = function (_React$Component3) {
-    _inherits(Result, _React$Component3);
+				_inherits(Result, _React$Component3);
 
-    function Result(props) {
-        _classCallCheck(this, Result);
+				function Result(props) {
+								_classCallCheck(this, Result);
 
-        var _this7 = _possibleConstructorReturn(this, (Result.__proto__ || Object.getPrototypeOf(Result)).call(this, props));
+								var _this8 = _possibleConstructorReturn(this, (Result.__proto__ || Object.getPrototypeOf(Result)).call(this, props));
 
-        _this7.deleteResult = _this7.deleteResult.bind(_this7);
-        return _this7;
-    }
+								_this8.deleteResult = _this8.deleteResult.bind(_this8);
+								_this8.editResult = _this8.editResult.bind(_this8);
+								return _this8;
+				}
 
-    _createClass(Result, [{
-        key: 'deleteResult',
-        value: function deleteResult() {
-            this.props.deleteResult(this.props.result);
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            return _react2.default.createElement(
-                'tr',
-                null,
-                _react2.default.createElement(
-                    'td',
-                    null,
-                    this.props.result.place
-                ),
-                _react2.default.createElement(
-                    'td',
-                    null,
-                    this.props.result.date
-                ),
-                _react2.default.createElement(
-                    'td',
-                    null,
-                    this.props.result.points,
-                    '/60'
-                ),
-                _react2.default.createElement(
-                    'td',
-                    null,
-                    this.props.result.placement,
-                    '.'
-                ),
-                _react2.default.createElement(
-                    'td',
-                    null,
-                    _react2.default.createElement(
-                        'button',
-                        { className: 'btn btn-danger btn-xs', onClick: this.deleteResult },
-                        'Delete'
-                    )
-                )
-            );
-        }
-    }]);
+				_createClass(Result, [{
+								key: 'deleteResult',
+								value: function deleteResult() {
+												this.props.deleteResult(this.props.result);
+								}
+				}, {
+								key: 'editResult',
+								value: function editResult() {
+												this.props.editResult(this.props.result);
+								}
+				}, {
+								key: 'render',
+								value: function render() {
+												return _react2.default.createElement(
+																'tr',
+																null,
+																_react2.default.createElement(
+																				'td',
+																				null,
+																				this.props.result.place
+																),
+																_react2.default.createElement(
+																				'td',
+																				null,
+																				this.props.result.date
+																),
+																_react2.default.createElement(
+																				'td',
+																				null,
+																				this.props.result.points,
+																				'/60'
+																),
+																_react2.default.createElement(
+																				'td',
+																				null,
+																				this.props.result.placement,
+																				'.'
+																),
+																_react2.default.createElement(
+																				'td',
+																				null,
+																				_react2.default.createElement(
+																								'button',
+																								{ className: 'btn btn-danger btn-xs', onClick: this.deleteResult },
+																								'Delete'
+																				),
+																				_react2.default.createElement(
+																								'button',
+																								{ className: 'btn btn-info btn-xs', onClick: this.editResult },
+																								'Edit'
+																				)
+																)
+												);
+								}
+				}]);
 
-    return Result;
-}(_react2.default.Component);
-
-var ResultForm = function (_React$Component4) {
-    _inherits(ResultForm, _React$Component4);
-
-    function ResultForm(props) {
-        _classCallCheck(this, ResultForm);
-
-        var _this8 = _possibleConstructorReturn(this, (ResultForm.__proto__ || Object.getPrototypeOf(ResultForm)).call(this, props));
-
-        _this8.state = { place: '', date: '', points: '', placement: '' };
-        _this8.handleSubmit = _this8.handleSubmit.bind(_this8);
-        _this8.handleChange = _this8.handleChange.bind(_this8);
-        return _this8;
-    }
-
-    _createClass(ResultForm, [{
-        key: 'handleChange',
-        value: function handleChange(event) {
-            this.setState(_defineProperty({}, event.target.name, event.target.value));
-        }
-    }, {
-        key: 'handleSubmit',
-        value: function handleSubmit(event) {
-            event.preventDefault();
-            var newResult = { place: this.state.place, date: this.state.date, points: this.state.points, placement: this.state.placement };
-            this.props.addResult(newResult);
-        }
-    }, {
-        key: 'render',
-        value: function render() {
-            return _react2.default.createElement(
-                'div',
-                null,
-                _react2.default.createElement(
-                    'div',
-                    { className: 'panel panel-default' },
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'panel-heading' },
-                        'Lis\xE4\xE4 tapahtuma'
-                    ),
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'panel-body' },
-                        _react2.default.createElement(
-                            'form',
-                            { className: 'form' },
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'col-md-4' },
-                                _react2.default.createElement('input', { type: 'text', placeholder: 'Paikka', className: 'form-control', name: 'place', onChange: this.handleChange })
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'col-md-4' },
-                                _react2.default.createElement('input', { type: 'date', placeholder: 'P\xE4iv\xE4m\xE4\xE4r\xE4', className: 'form-control', name: 'date', onChange: this.handleChange })
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'col-md-2' },
-                                _react2.default.createElement('input', { type: 'number', min: '1', max: '60', placeholder: 'Pisteet', className: 'form-control', name: 'points', onChange: this.handleChange })
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'col-md-2' },
-                                _react2.default.createElement('input', { type: 'text', placeholder: 'Sijoitus', className: 'form-control', name: 'placement', onChange: this.handleChange })
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'col-md-2' },
-                                _react2.default.createElement(
-                                    'button',
-                                    { className: 'btn btn-primary', onClick: this.handleSubmit },
-                                    'Tallenna'
-                                )
-                            )
-                        )
-                    )
-                )
-            );
-        }
-    }]);
-
-    return ResultForm;
+				return Result;
 }(_react2.default.Component);
 
 _reactDom2.default.render(_react2.default.createElement(App, null), document.getElementById('root'));
